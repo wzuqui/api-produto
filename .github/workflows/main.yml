@@ -16,7 +16,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          logout: false
 
       - name: Criando a imagem Docker
         uses: docker/build-push-action@v2.3.0
