@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: kubedevio/api-produto:v1
+          image: wzuqui/api-produto:latest
           resources: {}
           ports:
             - containerPort: 8080
