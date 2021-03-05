@@ -6,17 +6,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  CI:
     runs-on: ubuntu-latest
     steps:
+      # Git checkout:
       - uses: actions/checkout@v2
-      
+      # Docker login:
       - name: Docker Login
         uses: docker/login-action@v1.8.0
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+      # Criando imagem:
       - name: Criando a imagem Docker
         uses: docker/build-push-action@v2.3.0
         with:
@@ -26,3 +27,29 @@ jobs:
             wzuqui/api-produto:latest
             wzuqui/api-produto:${{ github.run_number }}
           push: true
+  CD:
+    needs: [CI]
+    runs-on: ubuntu-latest
+    steps:
+      # Git checkout:
+      - uses: actions/checkout@v2
+      # Kubernetes config:
+      - name: Kubernetes config
+        uses: Azure/k8s-set-context@v1
+        with:
+          kubeconfig: ${{ secrets.K8S_CONFIG }}
+      # Kubernetes deploy MongoDB:
+      - name: Kubernetes deploy MongoDB
+        uses: Azure/k8s-deploy@v1.3
+        with:
+          manifests: |
+            k8s/mongodb/deployment.yaml
+            k8s/mongodb/service.yaml
+      # Kubernetes deploy API:
+      - name: Kubernetes deploy API
+        uses: Azure/k8s-deploy@v1.3
+        with:
+          manifests: |
+            k8s/api/deployment.yaml
+            k8s/api/service.yaml
+
